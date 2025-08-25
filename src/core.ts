@@ -178,8 +178,13 @@ export class OsrCore {
             );
         }
 
-        // Store away the new schedule info
-        await DataStoreAlgorithm.getInstance().noteSetSchedule(noteFile, noteSchedule);
+        // Store away the new schedule info with difficulty tracking if enabled
+        const difficultyString = this.getDifficultyString(response);
+        await DataStoreAlgorithm.getInstance().noteSetSchedule(
+            noteFile,
+            noteSchedule,
+            difficultyString,
+        );
 
         // Generate the histogram for the due dates for all the notes
         // (This could be optimized to make the small adjustments to the histogram, but simpler to implement
@@ -201,6 +206,19 @@ export class OsrCore {
             this.noteReviewQueue.reviewDecks,
             this.osrNoteGraph,
         );
+    }
+
+    private getDifficultyString(response: ReviewResponse): string | undefined {
+        switch (response) {
+            case ReviewResponse.Easy:
+                return "Easy";
+            case ReviewResponse.Good:
+                return "Good";
+            case ReviewResponse.Hard:
+                return "Hard";
+            default:
+                return undefined;
+        }
     }
 
     private async buryAllCardsInNote(settings: SRSettings, noteFile: ISRFile): Promise<void> {

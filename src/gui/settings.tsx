@@ -1220,6 +1220,46 @@ export class SRSettingTab extends PluginSettingTab {
                         this.display();
                     });
             });
+
+        new Setting(containerEl)
+            .setName(t("ENABLE_DIFFICULTY_TRACKING"))
+            .setDesc(t("ENABLE_DIFFICULTY_TRACKING_DESC"))
+            .addToggle((toggle) =>
+                toggle
+                    .setValue(this.plugin.data.settings.enableDifficultyTracking)
+                    .onChange(async (value) => {
+                        this.plugin.data.settings.enableDifficultyTracking = value;
+                        await this.plugin.savePluginData();
+                        this.display(); // Refresh to show/hide difficulty key setting
+                    }),
+            );
+
+        // Only show the difficulty key setting if difficulty tracking is enabled
+        if (this.plugin.data.settings.enableDifficultyTracking) {
+            new Setting(containerEl)
+                .setName(t("FRONTMATTER_KEY_DIFFICULTY"))
+                .setDesc(t("FRONTMATTER_KEY_DIFFICULTY_DESC"))
+                .addText((text) =>
+                    text
+                        .setValue(this.plugin.data.settings.frontmatterKeyDifficulty)
+                        .onChange((value) => {
+                            applySettingsUpdate(async () => {
+                                this.plugin.data.settings.frontmatterKeyDifficulty = value.trim();
+                                await this.plugin.savePluginData();
+                            });
+                        }),
+                )
+                .addExtraButton((button) => {
+                    button
+                        .setIcon("reset")
+                        .setTooltip(t("RESET_DEFAULT"))
+                        .onClick(async () => {
+                            this.plugin.data.settings.frontmatterKeyDifficulty = DEFAULT_SETTINGS.frontmatterKeyDifficulty;
+                            await this.plugin.savePluginData();
+                            this.display();
+                        });
+                });
+        }
     }
 
     private async tabHelp(containerEl: HTMLElement): Promise<void> {

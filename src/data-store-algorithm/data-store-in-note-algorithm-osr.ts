@@ -33,7 +33,10 @@ export class DataStoreInNoteAlgorithmOsr implements IDataStoreAlgorithm {
         const frontmatter: Map<string, string> = await note.getFrontmatter();
 
         if (frontmatter && frontmatter.has(this.settings.frontmatterKeyDue)) {
-            const dueDate: Moment = moment(frontmatter.get(this.settings.frontmatterKeyDue), ALLOWED_DATE_FORMATS);
+            const dueDate: Moment = moment(
+                frontmatter.get(this.settings.frontmatterKeyDue),
+                ALLOWED_DATE_FORMATS,
+            );
 
             // For Custom Intervals, interval might not be stored, so use a default value
             // The actual interval will be determined by the algorithm when scheduling
@@ -53,7 +56,11 @@ export class DataStoreInNoteAlgorithmOsr implements IDataStoreAlgorithm {
         return result;
     }
 
-    async noteSetSchedule(note: ISRFile, repItemScheduleInfo: RepItemScheduleInfo): Promise<void> {
+    async noteSetSchedule(
+        note: ISRFile,
+        repItemScheduleInfo: RepItemScheduleInfo,
+        difficulty?: string,
+    ): Promise<void> {
         let fileText: string = await note.read();
 
         const schedInfo: RepItemScheduleInfoOsr = repItemScheduleInfo as RepItemScheduleInfoOsr;
@@ -63,32 +70,64 @@ export class DataStoreInNoteAlgorithmOsr implements IDataStoreAlgorithm {
 
         // Determine what to include based on algorithm
         const includeSM2Data = this.settings.algorithm === Algorithm.SM_2_OSR;
-        const intervalString = includeSM2Data ? `${this.settings.frontmatterKeyInterval}: ${interval}\n` : "";
+        const intervalString = includeSM2Data
+            ? `${this.settings.frontmatterKeyInterval}: ${interval}\n`
+            : "";
         const easeString = includeSM2Data ? `${this.settings.frontmatterKeyEase}: ${ease}\n` : "";
+
+        // Prepare difficulty string if enabled and provided
+        const difficultyString =
+            this.settings.enableDifficultyTracking && difficulty
+                ? `${this.settings.frontmatterKeyDifficulty}: ${difficulty}\n`
+                : "";
 
         // check if YAML front matter exists
         if (YAML_FRONT_MATTER_REGEX.test(fileText)) {
             const yamlMatch = YAML_FRONT_MATTER_REGEX.exec(fileText);
             const existingYaml = yamlMatch[1];
-            
+
             // Remove existing scheduling data keys from YAML if they exist
             let updatedYaml = existingYaml;
             const escapeRegExp = (string: string) => string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-            updatedYaml = updatedYaml.replace(new RegExp(`^${escapeRegExp(this.settings.frontmatterKeyDue)}:.*\\r?\\n`, "gm"), "");
-            updatedYaml = updatedYaml.replace(new RegExp(`^${escapeRegExp(this.settings.frontmatterKeyInterval)}:.*\\r?\\n`, "gm"), "");
-            updatedYaml = updatedYaml.replace(new RegExp(`^${escapeRegExp(this.settings.frontmatterKeyEase)}:.*\\r?\\n`, "gm"), "");
-            
-            // Add the new scheduling data
-            const newYaml = updatedYaml + `${this.settings.frontmatterKeyDue}: ${dueString}\n` + intervalString + easeString;
-            
-            fileText = fileText.replace(
-                YAML_FRONT_MATTER_REGEX,
-                `---\n${newYaml}---`,
+            updatedYaml = updatedYaml.replace(
+                new RegExp(`^${escapeRegExp(this.settings.frontmatterKeyDue)}:.*\\r?\\n`, "gm"),
+                "",
             );
+            updatedYaml = updatedYaml.replace(
+                new RegExp(
+                    `^${escapeRegExp(this.settings.frontmatterKeyInterval)}:.*\\r?\\n`,
+                    "gm",
+                ),
+                "",
+            );
+            updatedYaml = updatedYaml.replace(
+                new RegExp(`^${escapeRegExp(this.settings.frontmatterKeyEase)}:.*\\r?\\n`, "gm"),
+                "",
+            );
+            if (this.settings.enableDifficultyTracking) {
+                updatedYaml = updatedYaml.replace(
+                    new RegExp(
+                        `^${escapeRegExp(this.settings.frontmatterKeyDifficulty)}:.*\\r?\\n`,
+                        "gm",
+                    ),
+                    "",
+                );
+            }
+
+            // Add the new scheduling data
+            const newYaml =
+                updatedYaml +
+                `${this.settings.frontmatterKeyDue}: ${dueString}\n` +
+                intervalString +
+                easeString +
+                difficultyString;
+
+            fileText = fileText.replace(YAML_FRONT_MATTER_REGEX, `---\n${newYaml}---`);
         } else {
             // No existing YAML front matter, create new one
             fileText =
-                `---\n${this.settings.frontmatterKeyDue}: ${dueString}\n` + `${intervalString}${easeString}---\n\n${fileText}`;
+                `---\n${this.settings.frontmatterKeyDue}: ${dueString}\n` +
+                `${intervalString}${easeString}${difficultyString}---\n\n${fileText}`;
         }
 
         await note.write(fileText);

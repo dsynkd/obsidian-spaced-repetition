@@ -67,6 +67,8 @@ export interface SRSettings {
     frontmatterKeyDue: string;
     frontmatterKeyInterval: string;
     frontmatterKeyEase: string;
+    enableDifficultyTracking: boolean;
+    frontmatterKeyDifficulty: string;
 
     // logging
     showSchedulingDebugMessages: boolean;
@@ -135,6 +137,8 @@ export const DEFAULT_SETTINGS: SRSettings = {
     frontmatterKeyDue: "sr-due",
     frontmatterKeyInterval: "sr-interval",
     frontmatterKeyEase: "sr-ease",
+    enableDifficultyTracking: false,
+    frontmatterKeyDifficulty: "sr-difficulty",
 
     // logging
     showSchedulingDebugMessages: false,
@@ -189,6 +193,14 @@ export function upgradeSettings(settings: SRSettings) {
     }
     if (settings.frontmatterKeyEase == null) {
         settings.frontmatterKeyEase = DEFAULT_SETTINGS.frontmatterKeyEase;
+    }
+
+    // Add difficulty tracking settings if they don't exist (for existing users)
+    if (settings.enableDifficultyTracking == null) {
+        settings.enableDifficultyTracking = DEFAULT_SETTINGS.enableDifficultyTracking;
+    }
+    if (settings.frontmatterKeyDifficulty == null) {
+        settings.frontmatterKeyDifficulty = DEFAULT_SETTINGS.frontmatterKeyDifficulty;
     }
 }
 
