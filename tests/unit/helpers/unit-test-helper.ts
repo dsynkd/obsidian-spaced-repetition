@@ -137,7 +137,7 @@ export function unitTestCheckNoteFrontmatter(
     expectedInterval: number,
     expectedEase: number,
     frontmatterKeyDue: string = "sr-due",
-    frontmatterKeyInterval: string = "sr-interval", 
+    frontmatterKeyInterval: string = "sr-interval",
     frontmatterKeyEase: string = "sr-ease",
     expectedDifficulty?: string,
     difficultyKey: string = "sr-difficulty",
@@ -151,7 +151,7 @@ export function unitTestCheckNoteFrontmatter(
     expect(frontmatter.get("sr-due")).toEqual(expectedDueDate);
     expect(frontmatter.get("sr-interval")).toEqual(expectedInterval + "");
     expect(frontmatter.get("sr-ease")).toEqual(expectedEase + "");
-    
+
     if (expectedDifficulty !== undefined) {
         expect(frontmatter.get(difficultyKey)).toEqual(expectedDifficulty);
     }

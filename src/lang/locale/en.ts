@@ -208,9 +208,11 @@ export default {
     FRONTMATTER_KEY_EASE: "Frontmatter key for ease",
     FRONTMATTER_KEY_EASE_DESC: "The frontmatter key used to store the ease factor.",
     ENABLE_DIFFICULTY_TRACKING: "Enable difficulty tracking",
-    ENABLE_DIFFICULTY_TRACKING_DESC: "Store the difficulty level (Easy, Good, Hard) when reviewing notes.",
+    ENABLE_DIFFICULTY_TRACKING_DESC:
+        "Store the difficulty level (Easy, Good, Hard) when reviewing notes.",
     FRONTMATTER_KEY_DIFFICULTY: "Frontmatter key for difficulty",
-    FRONTMATTER_KEY_DIFFICULTY_DESC: "The frontmatter key used to store the review difficulty level.",
+    FRONTMATTER_KEY_DIFFICULTY_DESC:
+        "The frontmatter key used to store the review difficulty level.",
 
     // sidebar.ts
     NOTES_REVIEW_QUEUE: "Notes Review Queue",
