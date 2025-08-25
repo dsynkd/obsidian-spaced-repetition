@@ -201,6 +201,12 @@ export default {
     EXPERIMENTAL: "Experimental",
     HELP: "Help",
     STORE_IN_NOTES: "In the notes",
+    FRONTMATTER_KEY_DUE: "Frontmatter key for due date",
+    FRONTMATTER_KEY_DUE_DESC: "The frontmatter key used to store the due date for note reviews.",
+    FRONTMATTER_KEY_INTERVAL: "Frontmatter key for interval",
+    FRONTMATTER_KEY_INTERVAL_DESC: "The frontmatter key used to store the review interval.",
+    FRONTMATTER_KEY_EASE: "Frontmatter key for ease",
+    FRONTMATTER_KEY_EASE_DESC: "The frontmatter key used to store the ease factor.",
 
     // sidebar.ts
     NOTES_REVIEW_QUEUE: "Notes Review Queue",

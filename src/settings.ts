@@ -64,6 +64,9 @@ export interface SRSettings {
     // storage
     dataStore: string;
     cardCommentOnSameLine: boolean;
+    frontmatterKeyDue: string;
+    frontmatterKeyInterval: string;
+    frontmatterKeyEase: string;
 
     // logging
     showSchedulingDebugMessages: boolean;
@@ -129,6 +132,9 @@ export const DEFAULT_SETTINGS: SRSettings = {
     // storage
     dataStore: DataStoreName.NOTES,
     cardCommentOnSameLine: false,
+    frontmatterKeyDue: "sr-due",
+    frontmatterKeyInterval: "sr-interval",
+    frontmatterKeyEase: "sr-ease",
 
     // logging
     showSchedulingDebugMessages: false,
@@ -172,6 +178,17 @@ export function upgradeSettings(settings: SRSettings) {
     }
     if (settings.customIntervalHard == null) {
         settings.customIntervalHard = DEFAULT_SETTINGS.customIntervalHard;
+    }
+
+    // Add frontmatter key settings if they don't exist (for existing users)
+    if (settings.frontmatterKeyDue == null) {
+        settings.frontmatterKeyDue = DEFAULT_SETTINGS.frontmatterKeyDue;
+    }
+    if (settings.frontmatterKeyInterval == null) {
+        settings.frontmatterKeyInterval = DEFAULT_SETTINGS.frontmatterKeyInterval;
+    }
+    if (settings.frontmatterKeyEase == null) {
+        settings.frontmatterKeyEase = DEFAULT_SETTINGS.frontmatterKeyEase;
     }
 }
 

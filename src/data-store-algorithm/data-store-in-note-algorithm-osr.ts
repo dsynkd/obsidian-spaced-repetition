@@ -7,7 +7,6 @@ import { RepItemScheduleInfoOsr } from "src/algorithms/osr/rep-item-schedule-inf
 import { Card } from "src/card";
 import {
     ALLOWED_DATE_FORMATS,
-    SCHEDULING_INFO_REGEX,
     SR_HTML_COMMENT_BEGIN,
     SR_HTML_COMMENT_END,
     YAML_FRONT_MATTER_REGEX,
@@ -33,20 +32,20 @@ export class DataStoreInNoteAlgorithmOsr implements IDataStoreAlgorithm {
         let result: RepItemScheduleInfo = null;
         const frontmatter: Map<string, string> = await note.getFrontmatter();
 
-        if (frontmatter && frontmatter.has("sr-due")) {
-            const dueDate: Moment = moment(frontmatter.get("sr-due"), ALLOWED_DATE_FORMATS);
+        if (frontmatter && frontmatter.has(this.settings.frontmatterKeyDue)) {
+            const dueDate: Moment = moment(frontmatter.get(this.settings.frontmatterKeyDue), ALLOWED_DATE_FORMATS);
 
             // For Custom Intervals, interval might not be stored, so use a default value
             // The actual interval will be determined by the algorithm when scheduling
             let interval: number = 1; // Default interval
-            if (frontmatter.has("sr-interval")) {
-                interval = parseFloat(frontmatter.get("sr-interval"));
+            if (frontmatter.has(this.settings.frontmatterKeyInterval)) {
+                interval = parseFloat(frontmatter.get(this.settings.frontmatterKeyInterval));
             }
 
             // For Custom Intervals, ease might not be stored, so use default value
             let ease: number = 250; // Default ease
-            if (frontmatter.has("sr-ease")) {
-                ease = parseFloat(frontmatter.get("sr-ease"));
+            if (frontmatter.has(this.settings.frontmatterKeyEase)) {
+                ease = parseFloat(frontmatter.get(this.settings.frontmatterKeyEase));
             }
 
             result = new RepItemScheduleInfoOsr(dueDate, interval, ease);
@@ -64,29 +63,32 @@ export class DataStoreInNoteAlgorithmOsr implements IDataStoreAlgorithm {
 
         // Determine what to include based on algorithm
         const includeSM2Data = this.settings.algorithm === Algorithm.SM_2_OSR;
-        const intervalString = includeSM2Data ? `sr-interval: ${interval}\n` : "";
-        const easeString = includeSM2Data ? `sr-ease: ${ease}\n` : "";
+        const intervalString = includeSM2Data ? `${this.settings.frontmatterKeyInterval}: ${interval}\n` : "";
+        const easeString = includeSM2Data ? `${this.settings.frontmatterKeyEase}: ${ease}\n` : "";
 
-        // check if scheduling info exists
-        if (SCHEDULING_INFO_REGEX.test(fileText)) {
-            const schedulingInfo = SCHEDULING_INFO_REGEX.exec(fileText);
-            fileText = fileText.replace(
-                SCHEDULING_INFO_REGEX,
-                `---\n${schedulingInfo[1]}sr-due: ${dueString}\n` +
-                    `${intervalString}${easeString}` +
-                    `${schedulingInfo[5]}---`,
-            );
-        } else if (YAML_FRONT_MATTER_REGEX.test(fileText)) {
-            // new note with existing YAML front matter
-            const existingYaml = YAML_FRONT_MATTER_REGEX.exec(fileText);
+        // check if YAML front matter exists
+        if (YAML_FRONT_MATTER_REGEX.test(fileText)) {
+            const yamlMatch = YAML_FRONT_MATTER_REGEX.exec(fileText);
+            const existingYaml = yamlMatch[1];
+            
+            // Remove existing scheduling data keys from YAML if they exist
+            let updatedYaml = existingYaml;
+            const escapeRegExp = (string: string) => string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+            updatedYaml = updatedYaml.replace(new RegExp(`^${escapeRegExp(this.settings.frontmatterKeyDue)}:.*\\r?\\n`, "gm"), "");
+            updatedYaml = updatedYaml.replace(new RegExp(`^${escapeRegExp(this.settings.frontmatterKeyInterval)}:.*\\r?\\n`, "gm"), "");
+            updatedYaml = updatedYaml.replace(new RegExp(`^${escapeRegExp(this.settings.frontmatterKeyEase)}:.*\\r?\\n`, "gm"), "");
+            
+            // Add the new scheduling data
+            const newYaml = updatedYaml + `${this.settings.frontmatterKeyDue}: ${dueString}\n` + intervalString + easeString;
+            
             fileText = fileText.replace(
                 YAML_FRONT_MATTER_REGEX,
-                `---\n${existingYaml[1]}sr-due: ${dueString}\n` +
-                    `${intervalString}${easeString}---`,
+                `---\n${newYaml}---`,
             );
         } else {
+            // No existing YAML front matter, create new one
             fileText =
-                `---\nsr-due: ${dueString}\n` + `${intervalString}${easeString}---\n\n${fileText}`;
+                `---\n${this.settings.frontmatterKeyDue}: ${dueString}\n` + `${intervalString}${easeString}---\n\n${fileText}`;
         }
 
         await note.write(fileText);
