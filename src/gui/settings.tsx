@@ -1148,6 +1148,78 @@ export class SRSettingTab extends PluginSettingTab {
                         await this.plugin.savePluginData();
                     }),
             );
+
+        new Setting(containerEl)
+            .setName(t("FRONTMATTER_KEY_DUE"))
+            .setDesc(t("FRONTMATTER_KEY_DUE_DESC"))
+            .addText((text) =>
+                text
+                    .setValue(this.plugin.data.settings.frontmatterKeyDue)
+                    .onChange((value) => {
+                        applySettingsUpdate(async () => {
+                            this.plugin.data.settings.frontmatterKeyDue = value.trim();
+                            await this.plugin.savePluginData();
+                        });
+                    }),
+            )
+            .addExtraButton((button) => {
+                button
+                    .setIcon("reset")
+                    .setTooltip(t("RESET_DEFAULT"))
+                    .onClick(async () => {
+                        this.plugin.data.settings.frontmatterKeyDue = DEFAULT_SETTINGS.frontmatterKeyDue;
+                        await this.plugin.savePluginData();
+                        this.display();
+                    });
+            });
+
+        new Setting(containerEl)
+            .setName(t("FRONTMATTER_KEY_INTERVAL"))
+            .setDesc(t("FRONTMATTER_KEY_INTERVAL_DESC"))
+            .addText((text) =>
+                text
+                    .setValue(this.plugin.data.settings.frontmatterKeyInterval)
+                    .onChange((value) => {
+                        applySettingsUpdate(async () => {
+                            this.plugin.data.settings.frontmatterKeyInterval = value.trim();
+                            await this.plugin.savePluginData();
+                        });
+                    }),
+            )
+            .addExtraButton((button) => {
+                button
+                    .setIcon("reset")
+                    .setTooltip(t("RESET_DEFAULT"))
+                    .onClick(async () => {
+                        this.plugin.data.settings.frontmatterKeyInterval = DEFAULT_SETTINGS.frontmatterKeyInterval;
+                        await this.plugin.savePluginData();
+                        this.display();
+                    });
+            });
+
+        new Setting(containerEl)
+            .setName(t("FRONTMATTER_KEY_EASE"))
+            .setDesc(t("FRONTMATTER_KEY_EASE_DESC"))
+            .addText((text) =>
+                text
+                    .setValue(this.plugin.data.settings.frontmatterKeyEase)
+                    .onChange((value) => {
+                        applySettingsUpdate(async () => {
+                            this.plugin.data.settings.frontmatterKeyEase = value.trim();
+                            await this.plugin.savePluginData();
+                        });
+                    }),
+            )
+            .addExtraButton((button) => {
+                button
+                    .setIcon("reset")
+                    .setTooltip(t("RESET_DEFAULT"))
+                    .onClick(async () => {
+                        this.plugin.data.settings.frontmatterKeyEase = DEFAULT_SETTINGS.frontmatterKeyEase;
+                        await this.plugin.savePluginData();
+                        this.display();
+                    });
+            });
     }
 
     private async tabHelp(containerEl: HTMLElement): Promise<void> {

@@ -136,11 +136,14 @@ export function unitTestCheckNoteFrontmatter(
     expectedDueDate: string,
     expectedInterval: number,
     expectedEase: number,
+    frontmatterKeyDue: string = "sr-due",
+    frontmatterKeyInterval: string = "sr-interval", 
+    frontmatterKeyEase: string = "sr-ease",
 ): void {
     const frontmatter: Map<string, string> = unitTestBasicFrontmatterParser(text);
 
     expect(frontmatter).toBeTruthy();
-    expect(frontmatter.get("sr-due")).toEqual(expectedDueDate);
-    expect(frontmatter.get("sr-interval")).toEqual(expectedInterval + "");
-    expect(frontmatter.get("sr-ease")).toEqual(expectedEase + "");
+    expect(frontmatter.get(frontmatterKeyDue)).toEqual(expectedDueDate);
+    expect(frontmatter.get(frontmatterKeyInterval)).toEqual(expectedInterval + "");
+    expect(frontmatter.get(frontmatterKeyEase)).toEqual(expectedEase + "");
 }
