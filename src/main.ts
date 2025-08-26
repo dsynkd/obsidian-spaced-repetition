@@ -494,13 +494,6 @@ export default class SRPlugin extends Plugin {
             return;
         }
 
-        const tags = noteSrTFile.getAllTagsFromCache();
-        if (!SettingsUtil.isAnyTagANoteReviewTag(this.data.settings, tags)) {
-            new Notice(t("PLEASE_TAG_NOTE"));
-            return;
-        }
-
-        //
         await this.osrAppCore.saveNoteReviewResponse(noteSrTFile, response, this.data.settings);
 
         new Notice(t("RESPONSE_RECEIVED"));
